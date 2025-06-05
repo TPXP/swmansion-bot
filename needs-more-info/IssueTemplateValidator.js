@@ -8,12 +8,17 @@ class IssueTemplateValidator {
     this.requiredSections = requiredSections;
   }
 
+  // Uses regex from `escape` https://github.com/LvChengbin/escape/blob/master/src/regexp.js
+  _normalizeSection(section) {
+    return section.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
+
   _sectionExists(section) {
     return this._getSectionPosition(section) !== -1;
   }
 
   _getSectionPosition(section) {
-    const regexp = new RegExp(`[#]+[ ]+${section}`);
+    const regexp = new RegExp(`[#]+[ ]+${this._normalizeSection(section)}`);
     return this.issueBody.search(regexp);
   }
 
@@ -21,7 +26,8 @@ class IssueTemplateValidator {
   _isSectionEmpty(section) {
     const sectionPosition = this._getSectionPosition(section);
     const sub = this.issueBody.substr(sectionPosition);
-    const sectionStartIndex = sub.search(new RegExp(`${section}`)) + section.length;
+    const sectionStartIndex =
+      sub.search(new RegExp(`${this._normalizeSection(section)}`)) + section.length;
     const nextSectionPos = sub.search(/\n[#]+/);
     const end = nextSectionPos === -1 ? undefined : nextSectionPos;
     const sectionContent = sub.substring(sectionStartIndex, end);
