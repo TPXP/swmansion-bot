@@ -24,6 +24,12 @@ class ReproValidator {
     return normalizedBody.search(regexp) !== -1;
   }
 
+  _hasGist(body) {
+    const normalizedBody = normalizeIssue(body || '');
+    const regexp = /https?:\/\/gist\.github\.com\/[^\s)\]]+/gm;
+    return normalizedBody.search(regexp) !== -1;
+  }
+
   // Heuristic way to guess with some confidence that a snippet has some JS/TS code
   _hasCodeSnippet(body) {
     if (!this.considerCodeSnippets) {
@@ -108,7 +114,7 @@ class ReproValidator {
   }
 
   isReproValid(body) {
-    return this._hasCodeSnippet(body) || this._hasSnack(body) || this._hasRepo(body);
+    return this._hasCodeSnippet(body) || this._hasSnack(body) || this._hasGist(body) || this._hasRepo(body);
   }
 }
 
